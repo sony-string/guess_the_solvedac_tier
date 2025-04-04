@@ -1,13 +1,27 @@
 const startBtn = document.getElementById('start-btn');
+const nextBtn = document.getElementById('next-btn');
+const checkBtn = document.getElementById('check-btn');
+const restartBtn = document.getElementById('restart-btn');
+const resultBox = document.getElementById('result');
+const finalResultBox = document.getElementById('final-result-box');
 const mainView = document.getElementById('main-view');
 const gameView = document.getElementById('game-view');
+const resultView = document.getElementById('result-view');
 const problemContainer = document.getElementById('problem-container');
 const tierRange = document.getElementById('tier-range');
 const tierLabel = document.getElementById('tier-label');
+const minInput = document.getElementById('tier-min');
+const maxInput = document.getElementById('tier-max');
+const minLabel = document.getElementById('selected-min-label');
+const maxLabel = document.getElementById('selected-max-label');
+const track = document.querySelector('.range-track');
 
 let problemList = [];
 let currentIndex = 0;
 let correctTierNum = null; // 서버에서 받은 티어 정답 숫자 저장
+let correctTierLabel = null;
+let gameResults = [];
+let currentProblemTitle = '';
 
 
 const tierStringToNumber = (tierStr) => {
@@ -45,23 +59,45 @@ const tierStringToNumber = (tierStr) => {
     'diamond 5', 'diamond 4', 'diamond 3', 'diamond 2', 'diamond 1',
     'ruby 5', 'ruby 4', 'ruby 3', 'ruby 2', 'ruby 1'
   ];
-  
-  // 초기 표시용
-  tierLabel.textContent = tierMap[tierRange.value - 1];
-  
-  tierRange.addEventListener('input', () => {
-    tierLabel.textContent = tierMap[tierRange.value - 1];
-  });
 
-  async function loadProblem(index) {
+  const tierKeys = ['b', 's', 'g', 'p', 'd', 'r'];
+
+  const tierRanges = ['Bronze', 'Silver', 'Gold', 'Platinum', 'Diamond', 'Ruby'];
+  const tierClassMap = ['tier-bronze', 'tier-silver', 'tier-gold', 'tier-platinum', 'tier-diamond', 'tier-ruby'];
+
+  const getTierRange = (tierLabel) => {
+    return tierLabel.split(' ')[0].toLowerCase(); // "Gold IV" → "gold"
+  };
+  
+tierRange.addEventListener('input', (e) => {
+  const value = parseInt(e.target.value);
+  const tierName = capitalize(tierRanges[tierRange.value]);
+  const className = tierClassMap[value];
+
+  // 텍스트 업데이트
+  tierLabel.textContent = tierName;
+
+  // 기존 클래스 제거 후 새 클래스 추가
+  tierRange.classList.remove(...tierClassMap);
+  tierRange.classList.add(className);
+});
+
+async function loadProblem(index) {
     const problemId = problemList[index];
     const res = await fetch(`http://localhost:3000/problem/${problemId}`);
     const data = await res.json();
+
+    correctTierLabel = data.tier; // e.g., "Gold IV"
+    currentProblemTitle = data.title;
+
+    tierRange.max = tierRanges.length - 1;
+    tierRange.value = 2; // 기본 골드
+    tierRange.classList.remove(...tierClassMap);
+    tierRange.classList.add(tierClassMap[2]);
   
     correctTierNum = tierStringToNumber(data.tier);
-    tierRange.disabled = false;
-    tierRange.value = 15;
-    tierLabel.textContent = tierMap[14];
+    tierRange.disabled = false;    
+    tierLabel.textContent = 'Gold';
     resultBox.innerHTML = '';
   
     problemContainer.innerHTML = `
@@ -80,121 +116,120 @@ const tierStringToNumber = (tierStr) => {
     }
   }
 
-startBtn.addEventListener('click', async () => {
-  mainView.classList.remove('active');
-  setTimeout(() => gameView.classList.add('active'), 100);
+const capitalize = (word) => word.charAt(0).toUpperCase() + word.slice(1);
 
-  try {
-    const res = await fetch(`http://localhost:3000/problem/${PROBLEM_ID}`);
-    const data = await res.json();
-
-    problemContainer.innerHTML = `
-      <h2>문제 ${data.id} - ${data.title}</h2>
-      <div class="section">${data.description}</div>
-
-      <h3>입력</h3>
-      <div class="section">${data.input}</div>
-
-      <h3>출력</h3>
-      <div class="section">${data.output}</div>
-
-      <div class="answer hidden" id="answer-box">
-        <h3>정답 티어: <span id="correct-tier">${data.tier || '알 수 없음'}</span></h3>
-      </div>
-    `;
-
-    // 수식 렌더링
-    if (window.MathJax) {
-      MathJax.typesetPromise();
+function updateSliderUI() {
+    let min = parseInt(minInput.value);
+    let max = parseInt(maxInput.value);
+  
+    if (min > max) {
+      // swap if crossed
+      [min, max] = [max, min];
+      minInput.value = min;
+      maxInput.value = max;
     }
-  } catch (err) {
-    console.error(err);
-    problemContainer.innerHTML = '<p>문제를 불러오는 데 실패했습니다.</p>';
+  
+    // update labels
+    minLabel.textContent = tierRanges[min];
+    maxLabel.textContent = tierRanges[max];
+  
+    // update highlighted bar
+    const percentMin = (min / 5) * 100;
+    const percentMax = (max / 5) * 100;
+  
+    track.style.setProperty('--left', `${percentMin}%`);
+    track.style.setProperty('--right', `${100 - percentMax}%`);
+    track.style.background = `linear-gradient(to right, #ddd ${percentMin}%, #4caf50 ${percentMin}%, #4caf50 ${percentMax}%, #ddd ${percentMax}%)`;
   }
-});
-
-
-tierRange.addEventListener('input', (e) => {
-  const val = parseInt(e.target.value, 10);
-  tierLabel.textContent = `${val} (${tierMap[val - 1]})`;
-});
-
-const checkBtn = document.getElementById('check-btn');
-const resultBox = document.getElementById('result');
-
-startBtn.addEventListener('click', async () => {
-  mainView.classList.remove('active');
-  setTimeout(() => gameView.classList.add('active'), 100);
-
-  try {
-    const res = await fetch(`http://localhost:3000/problem/${PROBLEM_ID}`);
-    const data = await res.json();
-
-    // 정답 숫자 저장
-    correctTierNum = tierStringToNumber(data.tier);
-
-    problemContainer.innerHTML = `
-      <h2>문제 ${data.id} - ${data.title}</h2>
-      <div class="section">${data.description}</div>
-
-      <h3>입력</h3>
-      <div class="section">${data.input}</div>
-
-      <h3>출력</h3>
-      <div class="section">${data.output}</div>
-    `;
-
-    // 수식 렌더링
-    if (window.MathJax) {
-      MathJax.typesetPromise();
-    }
-  } catch (err) {
-    console.error(err);
-    problemContainer.innerHTML = '<p>문제를 불러오는 데 실패했습니다.</p>';
-  }
-});
-
-checkBtn.addEventListener('click', () => {
-    const userTierNum = parseInt(tierRange.value, 10);
   
-    if (correctTierNum === null) {
-      resultBox.innerHTML = '정답 티어를 불러오지 못했습니다.';
-      return;
-    }
-  
-    // 바 비활성화
-    tierRange.disabled = true;
-  
-    const isCorrect = userTierNum === correctTierNum;
-    const correctTierLabel = tierMap[correctTierNum - 1];
-    const userTierLabel = tierMap[userTierNum - 1];
-  
-    resultBox.innerHTML = `
-      <p>${isCorrect ? '✅ 정답입니다!' : '❌ 틀렸습니다.'}</p>
-      <p>내가 고른 티어: <strong>${userTierLabel}</strong></p>
-      <p>정답 티어: <strong>${correctTierLabel}</strong></p>
-    `;
-  });
+  minInput.addEventListener('input', updateSliderUI);
+  maxInput.addEventListener('input', updateSliderUI);
 
-  startBtn.addEventListener('click', async () => {
+updateSliderUI(); // 초기화
+
+startBtn.addEventListener('click', async () => { 
+    const minTier = minInput.value;
+    const maxTier = maxInput.value;
+
     mainView.classList.remove('active');
     setTimeout(() => gameView.classList.add('active'), 100);
-  
-    const res = await fetch('http://localhost:3000/random-problems');
+
+    const res = await fetch(`http://localhost:3000/random-problems?min=${tierKeys[minTier]}&max=${tierKeys[maxTier]}`);
     const data = await res.json();
     problemList = data.problemIds;
     currentIndex = 0;
-  
-    await loadProblem(currentIndex);
-    nextBtn.classList.remove('hidden');
-  });
 
-  nextBtn.addEventListener('click', async () => {
-    if (currentIndex < problemList.length - 1) {
-      currentIndex += 1;
-      await loadProblem(currentIndex);
+    await loadProblem(currentIndex);
+});
+  
+checkBtn.addEventListener('click', () => {
+    const userTierIndex = parseInt(tierRange.value, 10);
+    const userTier = tierRanges[userTierIndex];
+  
+    const correctTier = getTierRange(correctTierLabel);
+    const isCorrect = capitalize(userTier) === capitalize(correctTier);    
+  
+    resultBox.innerHTML = `
+      <p>${isCorrect ? '✅ 정답입니다!' : '❌ 틀렸습니다.'}</p>
+      <p>내가 고른 티어: <strong>${capitalize(userTier)}</strong></p>
+      <p>정답 티어: <strong>${capitalize(correctTierLabel)}</strong></p>
+    `;
+  
+    // 기록 저장
+    gameResults.push({
+      id: problemList[currentIndex],
+      title: currentProblemTitle,
+      actual: capitalize(correctTierLabel),
+      chosen: capitalize(userTier),
+      correct: isCorrect
+    });
+  
+    // 버튼 토글
+    checkBtn.classList.add('hidden');
+    nextBtn.classList.remove('hidden');
+    tierRange.disabled = true;
+});
+
+nextBtn.addEventListener('click', async () => {
+    if (currentIndex < problemList.length - 8) {
+        currentIndex += 1;
+        await loadProblem(currentIndex);
+
+        // 버튼 상태 초기화
+        checkBtn.classList.remove('hidden'); // ← 정답 버튼 다시 보이기
+        nextBtn.classList.add('hidden');     // ← 다음 버튼 숨기기
     } else {
-      resultBox.innerHTML = '<p>문제를 모두 풀었습니다 🎉</p>';
-      nextBtn.disabled = true;
+        showFinalResults();
     }
-  });
+});
+
+function showFinalResults() {
+    const correctCount = gameResults.filter((r) => r.correct).length;
+    finalResultBox.innerHTML = `<h2>결과 요약 (${correctCount} / ${gameResults.length} 정답)</h2>`;
+  
+    const grid = document.createElement('div');
+    grid.classList.add('result-grid');
+  
+    gameResults.forEach((r) => {
+      const card = document.createElement('div');
+      card.classList.add('result-card');
+      card.classList.add(r.correct ? 'correct' : 'incorrect');
+      card.innerHTML = `
+        <p><strong>#${r.id}</strong> - ${r.title}</p>
+        <p>정답 티어: <span class="tier">${r.actual}</span></p>
+        <p>선택한 티어: <span class="tier">${r.chosen}</span></p>
+        <p class="result-tag">${r.correct ? '✅ 정답' : '❌ 오답'}</p>
+      `;
+      grid.appendChild(card);
+    });
+  
+    finalResultBox.appendChild(grid);
+    finalResultBox.appendChild(restartBtn); // fancy-btn
+    gameView.classList.remove('active');
+    resultView.classList.add('active');
+  }
+
+
+restartBtn.addEventListener('click', () => {
+    location.reload(); // 🔄 전체 페이지 새로고침
+});

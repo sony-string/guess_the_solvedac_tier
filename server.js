@@ -8,9 +8,13 @@ const PORT = 3000;
 
 app.use(cors());
 
-app.get('/random-problems', async (req, res) => {
+app.get('/random-problems', async (req, res) => {    
     try {
-      const searchUrl = `https://solved.ac/search?page=1&query=*b5..*r1&sort=random&direction=asc`;
+      const minTier = req.query.min || 'b5';
+      const maxTier = req.query.max || 'r1';
+      const query = `*${minTier}..${maxTier}`;
+      const searchUrl = `https://solved.ac/search?page=1&query=${encodeURIComponent(query)}+lang%3Ako&sort=random&direction=asc`;      
+      // console.log(searchUrl);
   
       const response = await axios.get(searchUrl, {
         headers: {

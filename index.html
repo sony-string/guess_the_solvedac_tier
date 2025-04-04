@@ -17,8 +17,20 @@
   <!-- 메인 화면 -->
   <div id="main-view" class="view active">
     <h1>Guess the solved.ac tier!</h1>
-    <button id="start-btn">시작!</button>
-  </div>
+    <button id="start-btn" class="pretty-button">시작!</button>
+
+    <div id="tier-range-setup">
+        <label>티어 범위 설정</label>
+        <div class="range-container">
+          <input type="range" min="0" max="5" value="0" id="tier-min" class="range" />
+          <input type="range" min="0" max="5" value="5" id="tier-max" class="range" />
+          <div class="range-track"></div>
+        </div>
+        <div class="tier-labels">
+          <span id="selected-min-label">Bronze</span> ~ <span id="selected-max-label">Ruby</span>
+        </div>
+      </div>
+  </div>  
 
   <!-- 게임 화면 -->
   <div id="game-view" class="view">
@@ -28,8 +40,8 @@
     </div>
 
     <div class="slider-container">
-      <label for="tier-range">티어 선택: <span id="tier-label">1 (bronze 5)</span></label>
-      <input type="range" min="1" max="30" value="1" id="tier-range">
+      <label for="tier-range">티어 선택: <span id="tier-label">Gold</span></label>
+      <input type="range" id="tier-range" min="0" max="5" class="tier-gold" value="2">
     </div>
 
     <button id="check-btn">정답 확인</button>
@@ -37,6 +49,12 @@
     <div id="result"></div>    
   </div>
 
-  <script src="script.js"></script>
+  <!-- ✅ 결과 뷰 -->
+  <section id="result-view" class="view">
+    <div id="final-result-box"></div>
+    <button id="restart-btn" class="fancy-btn">처음으로</button>
+  </section>
+
+  <script src="script.js" defer></script>
 </body>
 </html>
