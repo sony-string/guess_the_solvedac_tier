@@ -13,6 +13,7 @@ const tierLabel = document.getElementById('tier-label');
 const tierButtons = document.querySelectorAll('.tier-btn');
 const rangeLabel = document.getElementById('range-label');
 const countButtons = document.querySelectorAll('.count-btn');
+const apiURL = '/api';
 
 let problemList = [];
 let currentIndex = 0;
@@ -95,7 +96,7 @@ tierRange.addEventListener('input', (e) => {
 
 async function loadProblem(index) {
     const problemId = problemList[index];
-    const res = await fetch(`http://localhost:3000/problem/${problemId}`);
+    const res = await fetch(apiURL + `/problem/${problemId}`);
     const data = await res.json();
 
     correctTierLabel = data.tier; // e.g., "Gold IV"
@@ -175,7 +176,7 @@ startBtn.addEventListener('click', async () => {
     mainView.classList.remove('active');
     setTimeout(() => gameView.classList.add('active'), 100);
 
-    const res = await fetch(`http://localhost:3000/random-problems?min=${tierKeys[selectedMin]}&max=${tierKeys[selectedMax]}&count=${selectedCount}`);
+    const res = await fetch(apiURL + `/random-problems?min=${tierKeys[selectedMin]}&max=${tierKeys[selectedMax]}&count=${selectedCount}`);
     const data = await res.json();
     problemList = data.problemIds;
     currentIndex = 0;
