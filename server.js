@@ -14,7 +14,7 @@ app.get('/random-problems', async (req, res) => {
       const maxTier = req.query.max || 'r1';
       const query = `*${minTier}..${maxTier}`;
       const searchUrl = `https://solved.ac/search?page=1&query=${encodeURIComponent(query)}+lang%3Ako&sort=random&direction=asc`;      
-      // console.log(searchUrl);
+      console.log(searchUrl);
   
       const response = await axios.get(searchUrl, {
         headers: {
@@ -39,7 +39,7 @@ app.get('/random-problems', async (req, res) => {
         }
       });
   
-      res.json({ problemIds: problems.slice(0, 10) }); // 최대 10개
+      res.json({ problemIds: problems.slice(0, parseInt(req.query.count)) }); // 최대 10개
     } catch (err) {
       console.error('무작위 문제 불러오기 실패:', err.message);
       res.status(500).json({ error: '문제 불러오기 실패' });

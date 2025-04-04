@@ -10,18 +10,20 @@ const resultView = document.getElementById('result-view');
 const problemContainer = document.getElementById('problem-container');
 const tierRange = document.getElementById('tier-range');
 const tierLabel = document.getElementById('tier-label');
-const minInput = document.getElementById('tier-min');
-const maxInput = document.getElementById('tier-max');
-const minLabel = document.getElementById('selected-min-label');
-const maxLabel = document.getElementById('selected-max-label');
-const track = document.querySelector('.range-track');
+const tierButtons = document.querySelectorAll('.tier-btn');
+const rangeLabel = document.getElementById('range-label');
+const countButtons = document.querySelectorAll('.count-btn');
 
 let problemList = [];
 let currentIndex = 0;
+let selectedCount = 5; // 기본값
 let correctTierNum = null; // 서버에서 받은 티어 정답 숫자 저장
 let correctTierLabel = null;
 let gameResults = [];
 let currentProblemTitle = '';
+let selectedMin = 0;
+let selectedMax = 5;
+let clickCount = 0;
 
 
 const tierStringToNumber = (tierStr) => {
@@ -68,6 +70,15 @@ const tierStringToNumber = (tierStr) => {
   const getTierRange = (tierLabel) => {
     return tierLabel.split(' ')[0].toLowerCase(); // "Gold IV" → "gold"
   };
+
+countButtons.forEach(btn => {
+    btn.addEventListener('click', () => {
+        selectedCount = parseInt(btn.dataset.count);
+        
+        countButtons.forEach(b => b.classList.remove('selected'));
+        btn.classList.add('selected');
+    });
+});
   
 tierRange.addEventListener('input', (e) => {
   const value = parseInt(e.target.value);
@@ -118,43 +129,53 @@ async function loadProblem(index) {
 
 const capitalize = (word) => word.charAt(0).toUpperCase() + word.slice(1);
 
-function updateSliderUI() {
-    let min = parseInt(minInput.value);
-    let max = parseInt(maxInput.value);
-  
-    if (min > max) {
-      // swap if crossed
-      [min, max] = [max, min];
-      minInput.value = min;
-      maxInput.value = max;
+function updateButtonStyles() {
+    tierButtons.forEach((btn, idx) => {
+      if (idx >= selectedMin && idx <= selectedMax) {
+        btn.classList.add('selected');
+      } else {
+        btn.classList.remove('selected');
+      }
+    });
+    
+    if (clickCount === 1) {
+        rangeLabel.textContent = `${tierRanges[selectedMin]} ~ `;
+    } else {
+        rangeLabel.textContent = `${tierRanges[selectedMin]} ~ ${tierRanges[selectedMax]}`;
     }
+}
   
-    // update labels
-    minLabel.textContent = tierRanges[min];
-    maxLabel.textContent = tierRanges[max];
-  
-    // update highlighted bar
-    const percentMin = (min / 5) * 100;
-    const percentMax = (max / 5) * 100;
-  
-    track.style.setProperty('--left', `${percentMin}%`);
-    track.style.setProperty('--right', `${100 - percentMax}%`);
-    track.style.background = `linear-gradient(to right, #ddd ${percentMin}%, #4caf50 ${percentMin}%, #4caf50 ${percentMax}%, #ddd ${percentMax}%)`;
-  }
-  
-  minInput.addEventListener('input', updateSliderUI);
-  maxInput.addEventListener('input', updateSliderUI);
+tierButtons.forEach(btn => {
+    btn.addEventListener('click', () => {
+        const idx = parseInt(btn.dataset.index);
 
-updateSliderUI(); // 초기화
+        if (clickCount === 0) {
+            selectedMin = idx;
+            selectedMax = idx;
+            clickCount = 1;
+        } else {
+            selectedMax = idx;
+            if (selectedMin > selectedMax) {
+                [selectedMin, selectedMax] = [selectedMax, selectedMin];
+            }
+            clickCount = 0;
+        }
+
+        updateButtonStyles();
+    });
+});
+
+updateButtonStyles();
 
 startBtn.addEventListener('click', async () => { 
-    const minTier = minInput.value;
-    const maxTier = maxInput.value;
-
+    if (clickCount == 1) {
+        alert('티어 범위를 마저 선택해주세요!');
+        return;
+    }
     mainView.classList.remove('active');
     setTimeout(() => gameView.classList.add('active'), 100);
 
-    const res = await fetch(`http://localhost:3000/random-problems?min=${tierKeys[minTier]}&max=${tierKeys[maxTier]}`);
+    const res = await fetch(`http://localhost:3000/random-problems?min=${tierKeys[selectedMin]}&max=${tierKeys[selectedMax]}&count=${selectedCount}`);
     const data = await res.json();
     problemList = data.problemIds;
     currentIndex = 0;
@@ -191,8 +212,8 @@ checkBtn.addEventListener('click', () => {
 });
 
 nextBtn.addEventListener('click', async () => {
-    if (currentIndex < problemList.length - 8) {
-        currentIndex += 1;
+    currentIndex += 1;    
+    if (currentIndex < problemList.length) {
         await loadProblem(currentIndex);
 
         // 버튼 상태 초기화
@@ -227,6 +248,7 @@ function showFinalResults() {
     finalResultBox.appendChild(restartBtn); // fancy-btn
     gameView.classList.remove('active');
     resultView.classList.add('active');
+    window.scrollTo(0, 0);
   }
 
 

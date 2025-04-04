@@ -19,17 +19,28 @@
     <h1>Guess the solved.ac tier!</h1>
     <button id="start-btn" class="pretty-button">시작!</button>
 
-    <div id="tier-range-setup">
-        <label>티어 범위 설정</label>
-        <div class="range-container">
-          <input type="range" min="0" max="5" value="0" id="tier-min" class="range" />
-          <input type="range" min="0" max="5" value="5" id="tier-max" class="range" />
-          <div class="range-track"></div>
+    <div id="problem-count-setup">
+        <p class="slider-title">문제 개수 선택</p>
+        <div class="count-buttons">
+          <button class="count-btn selected" data-count="5">5문제</button>
+          <button class="count-btn" data-count="10">10문제</button>
         </div>
-        <div class="tier-labels">
-          <span id="selected-min-label">Bronze</span> ~ <span id="selected-max-label">Ruby</span>
+    </div>
+
+    <div id="tier-button-setup">
+        <p class="slider-title">티어 범위 선택</p>
+        <div class="tier-buttons">
+            <button class="tier-btn tier-bronze" data-index="0">Bronze</button>
+            <button class="tier-btn tier-silver" data-index="1">Silver</button>
+            <button class="tier-btn tier-gold" data-index="2">Gold</button>
+            <button class="tier-btn tier-platinum" data-index="3">Platinum</button>
+            <button class="tier-btn tier-diamond" data-index="4">Diamond</button>
+            <button class="tier-btn tier-ruby" data-index="5">Ruby</button>
         </div>
-      </div>
+        <div class="selected-range-label">
+          선택된 범위: <span id="range-label">Bronze ~ Ruby</span>
+        </div>
+    </div>
   </div>  
 
   <!-- 게임 화면 -->
