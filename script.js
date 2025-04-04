@@ -175,7 +175,7 @@ startBtn.addEventListener('click', async () => {
     mainView.classList.remove('active');
     setTimeout(() => gameView.classList.add('active'), 100);
 
-    const res = await fetch(`http://localhost:3000/random-problems?min=${tierKeys[selectedMin]}&max=${tierKeys[selectedMax]}&count=${selectedCount}`);
+    const res = await fetch(`http://34.82.215.66/random-problems?min=${tierKeys[selectedMin]}&max=${tierKeys[selectedMax]}&count=${selectedCount}`);
     const data = await res.json();
     problemList = data.problemIds;
     currentIndex = 0;
