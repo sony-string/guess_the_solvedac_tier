@@ -5,10 +5,36 @@
   <title>Guess the solved.ac tier!</title>
   <link rel="stylesheet" href="style.css">
 </head>
+<!-- MathJax for rendering LaTeX -->
+<script>
+    window.MathJax = {
+      tex: { inlineMath: [['$', '$'], ['\\(', '\\)']] },
+      svg: { fontCache: 'global' }
+    };
+    </script>
+    <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-svg.js" async></script>
 <body>
-  <div class="container">
+  <!-- 메인 화면 -->
+  <div id="main-view" class="view active">
     <h1>Guess the solved.ac tier!</h1>
     <button id="start-btn">시작!</button>
+  </div>
+
+  <!-- 게임 화면 -->
+  <div id="game-view" class="view">
+    <div id="problem-container" class="problem-box">
+      <!-- 서버에서 가져온 문제 내용이 여기에 삽입됨 -->
+      <p>문제 불러오는 중...</p>
+    </div>
+
+    <div class="slider-container">
+      <label for="tier-range">티어 선택: <span id="tier-label">1 (bronze 5)</span></label>
+      <input type="range" min="1" max="30" value="1" id="tier-range">
+    </div>
+
+    <button id="check-btn">정답 확인</button>
+    <button id="next-btn" class="hidden">다음 문제</button>
+    <div id="result"></div>    
   </div>
 
   <script src="script.js"></script>
