@@ -15,7 +15,7 @@ const rangeLabel = document.getElementById('range-label');
 const countButtons = document.querySelectorAll('.count-btn');
 
 
-const serverhost = 'http://34.82.215.66:80';
+const serverhost = 'https://sony-string.net/api';
 // const serverhost = 'http://localhost:3000';
 let problemList = [];
 let currentIndex = 0;
