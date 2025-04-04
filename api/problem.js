@@ -2,7 +2,7 @@ const axios = require('axios');
 const cheerio = require('cheerio');
 
 async (req, res) => {
-    const problemId = req.params.id;
+    const problemId = req.query.id;
   
     try {
       // Fetch BOJ page

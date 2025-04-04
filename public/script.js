@@ -96,7 +96,7 @@ tierRange.addEventListener('input', (e) => {
 
 async function loadProblem(index) {
     const problemId = problemList[index];
-    const res = await fetch(apiURL + `/problem/${problemId}`);
+    const res = await fetch(apiURL + `/problem?id=${problemId}`);
     const data = await res.json();
 
     correctTierLabel = data.tier; // e.g., "Gold IV"
