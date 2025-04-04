@@ -115,11 +115,9 @@ async function loadProblem(index) {
     problemContainer.innerHTML = `
       <h2>문제 ${data.id} - ${data.title}</h2>
       <div class="section">${data.description}</div>
-  
-      <h3>입력</h3>
+        
       <div class="section">${data.input}</div>
-  
-      <h3>출력</h3>
+        
       <div class="section">${data.output}</div>
     `;
   
