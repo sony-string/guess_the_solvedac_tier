@@ -64,14 +64,34 @@ body {
     background-color: #005fa3;
 }
 
-.problem-box {
-    background: white;
+#problem-container {
+    max-width: 100%;
+    width: 100%;
+    box-sizing: border-box;
     padding: 20px;
-    border-radius: 10px;
-    box-shadow: 0 0 20px rgba(0, 0, 0, 0.1);
-    max-height: 400px;
-    overflow-y: auto;
-    text-align: left;
+    margin: 0 auto;
+    overflow-wrap: break-word;
+    word-break: break-word;
+}
+
+/* 안에 있는 섹션들 정리 */
+#problem-container section {
+    margin-bottom: 20px;
+}
+
+/* 반응형 폰트 & 여백 */
+@media (max-width: 768px) {
+    #problem-container {
+        padding: 15px;
+        font-size: 14px;
+    }
+}
+
+@media (max-width: 480px) {
+    #problem-container {
+        padding: 10px;
+        font-size: 13px;
+    }
 }
 
 .slider-container {
