@@ -14,6 +14,9 @@ const tierButtons = document.querySelectorAll('.tier-btn');
 const rangeLabel = document.getElementById('range-label');
 const countButtons = document.querySelectorAll('.count-btn');
 
+
+const serverhost = 'http://34.82.215.66:80';
+// const serverhost = 'http://localhost:3000';
 let problemList = [];
 let currentIndex = 0;
 let selectedCount = 5; // 기본값
@@ -95,7 +98,7 @@ tierRange.addEventListener('input', (e) => {
 
 async function loadProblem(index) {
     const problemId = problemList[index];
-    const res = await fetch(`http://localhost:3000/problem/${problemId}`);
+    const res = await fetch(serverhost + `/problem/${problemId}`);
     const data = await res.json();
 
     correctTierLabel = data.tier; // e.g., "Gold IV"
@@ -175,7 +178,7 @@ startBtn.addEventListener('click', async () => {
     mainView.classList.remove('active');
     setTimeout(() => gameView.classList.add('active'), 100);
 
-    const res = await fetch(`http://34.82.215.66/random-problems?min=${tierKeys[selectedMin]}&max=${tierKeys[selectedMax]}&count=${selectedCount}`);
+    const res = await fetch(serverhost + `/random-problems?min=${tierKeys[selectedMin]}&max=${tierKeys[selectedMax]}&count=${selectedCount}`);
     const data = await res.json();
     problemList = data.problemIds;
     currentIndex = 0;
