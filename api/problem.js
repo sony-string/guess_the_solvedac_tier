@@ -1,7 +1,7 @@
 const axios = require('axios');
 const cheerio = require('cheerio');
 
-async (req, res) => {
+module.exports = async (req, res) => {
     const problemId = req.query.id;
   
     try {
