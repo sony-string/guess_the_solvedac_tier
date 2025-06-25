@@ -6,7 +6,7 @@ module.exports = async (req, res) => {
         const minTier = req.query.min || 'b5';
         const maxTier = req.query.max || 'r1';
         const query = `*${minTier}..${maxTier}`;
-        const searchUrl = `https://solved.ac/search?page=1&query=${encodeURIComponent(query)}+lang%3Ako&sort=random&direction=asc`;
+        const searchUrl = `https://solved.ac/problems?query=${encodeURIComponent(query)}+lang%3Ako&sort=random&direction=asc`;
         console.log(searchUrl);
 
         const response = await axios.get(searchUrl, {
