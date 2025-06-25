@@ -26,8 +26,8 @@ module.exports = async (req, res) => {
       return res.status(404).json({ error: '문제 정보를 찾을 수 없습니다.' });
     }
 
-    // Fetch solved.ac tier
-    const solvedUrl = `https://solved.ac/search?page=1&query=id%3A${problemId}`;
+    // Fetch solved.ac tier    
+    const solvedUrl = `https://solved.ac/api/v3/problem/show?problemId=${problemId}`;
     const solvedRes = await axios.get(solvedUrl, {
       headers: {
         'User-Agent':
@@ -37,9 +37,29 @@ module.exports = async (req, res) => {
       }
     });
 
-    const $solved = cheerio.load(solvedRes.data);
-    const tierImg = $solved('img[alt$="I"], img[alt$="II"], img[alt$="III"], img[alt$="IV"], img[alt$="V"]').first();
-    const tierAlt = tierImg.attr('alt') || null; // ex: "Gold IV"
+    console.log(solvedRes.data.level);
+    const romanNumber = ['0', 'V', 'IV', 'III', 'II', 'I'];
+    const tier = (() => {
+      let level = solvedRes.data.level;
+      if (level <= 5)
+        return 'bronze ' + romanNumber[level];
+      level -= 5;
+      if (level <= 5)
+        return 'silver ' + romanNumber[level];
+      level -= 5;
+      if (level <= 5)
+        return 'gold ' + romanNumber[level];
+      level -= 5;
+      if (level <= 5)
+        return 'platinum ' + romanNumber[level];
+      level -= 5;
+      if (level <= 5)
+        return 'diamond ' + romanNumber[level];
+      level -= 5;
+      if (level <= 5)
+        return 'ruby ' + romanNumber[level];            
+      return 'error';
+    })();
 
     res.json({
       id: problemId,
@@ -47,7 +67,7 @@ module.exports = async (req, res) => {
       description,
       input,
       output,
-      tier: tierAlt
+      tier: tier
     });
   } catch (error) {
     console.error('오류:', error.message);
